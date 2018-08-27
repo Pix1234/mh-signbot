@@ -4,6 +4,7 @@
 # Published by zhuyifei1999 (https://wikitech.wikimedia.org/wiki/User:Zhuyifei1999)
 # under the terms of Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
 # https://creativecommons.org/licenses/by-sa/3.0/
+# Modified for use without eventstreams by The Voidwalker
 
 from __future__ import unicode_literals
 
@@ -11,27 +12,27 @@ import os
 import re
 import time
 import random
-import signal
+#import signal
 import threading
 import hashlib
 
 import pywikibot
-from pywikibot.comms.eventstreams import site_rc_listener
+#from pywikibot.comms.eventstreams import site_rc_listener
 from pywikibot.diff import PatchManager
 
 from redis import Redis
 from redisconfig import KEYSIGN
 
 
-TIMEOUT = 60  # We expect at least one rc entry every minute
+#TIMEOUT = 60  # We expect at least one rc entry every minute
 
 
-class TimeoutError(Exception):
-    pass
+#class TimeoutError(Exception):
+#    pass
 
 
-def on_timeout(signum, frame):
-    raise TimeoutError
+#def on_timeout(signum, frame):
+#    raise TimeoutError
 
 
 class Controller():
@@ -44,13 +45,13 @@ class Controller():
         self.redis = Redis(host='tools-redis')
 
     def run(self):
-        signal.signal(signal.SIGALRM, on_timeout)
-        signal.alarm(TIMEOUT)
+#        signal.signal(signal.SIGALRM, on_timeout)
+#        signal.alarm(TIMEOUT)
 
-        rc = site_rc_listener(self.site)
+#        rc = site_rc_listener(self.site)
 
         for change in rc:
-            signal.alarm(TIMEOUT)
+#            signal.alarm(TIMEOUT)
 
             # Talk page or project page, bot edits excluded
             if (
