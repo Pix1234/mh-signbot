@@ -80,7 +80,7 @@ class RecentChangesHandler():
 			return True
 		return False
 
-	def get_rclist():
+	def get_rclist(self):
 		return self.rclist
 
 
