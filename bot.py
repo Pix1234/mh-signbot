@@ -12,27 +12,14 @@ import os
 import re
 import time
 import random
-#import signal
 import threading
 import hashlib
 
 import pywikibot
-#from pywikibot.comms.eventstreams import site_rc_listener
 from pywikibot.diff import PatchManager
 
 from redis import Redis
 from redisconfig import KEYSIGN
-
-
-#TIMEOUT = 60  # We expect at least one rc entry every minute
-
-
-#class TimeoutError(Exception):
-#    pass
-
-
-#def on_timeout(signum, frame):
-#    raise TimeoutError
 
 
 class Controller():
@@ -45,23 +32,21 @@ class Controller():
         self.redis = Redis(host='tools-redis')
 
     def run(self):
-#        signal.signal(signal.SIGALRM, on_timeout)
-#        signal.alarm(TIMEOUT)
-
-#        rc = site_rc_listener(self.site)
-
-        for change in rc:
-#            signal.alarm(TIMEOUT)
-
-            # Talk page or project page, bot edits excluded
-            if (
-                (not change['bot']) and
-                (change['namespace'] == 4 or change['namespace'] % 2 == 1) and
-                (change['type'] in ['edit', 'new']) and
-                ('!nosign!' not in change['comment'])
-            ):
-                t = BotThread(self.site, change, self)
-                t.start()
+		rc_handler = RecentChangesHandler(self.site)
+		rc = []
+		while True:
+			if rc_handler.upd_rclist():
+				rc = rc_handler.get_rclist()
+				for change in rc:
+					if (
+						(not change['bot']) and
+						(change['ns'] == 4 or change['ns'] % 2 == 1) and
+						(change['type'] in ['edit', 'new']) and
+						('!nosign!' not in change['comment'])
+					):
+						t = BotThread(self.site, change, self)
+						t.start()
+			time.sleep(300) # run every 5 min
 
         pywikibot.log('Main thread exit - THIS SHOULD NOT HAPPEN')
         time.sleep(10)
@@ -78,6 +63,27 @@ class Controller():
         return p.execute()[0] >= 3
 
 
+class RecentChangesHandler():
+	def __init__(self, site):
+		self.site = site
+		self.rclist = []
+		self.timestamp = ''
+
+	def upd_rclist(self):
+		rclist = []
+		rcgen = self.site.recentchanges()
+		for rc in rcgen:
+			rclist += [rc]
+		if rclist[0]['timestamp'] != self.timestamp:
+			self.rclist = rclist
+			self.timestamp = rclist[0]['timestamp']
+			return True
+		return False
+
+	def get_rclist():
+		return self.rclist
+
+
 class BotThread(threading.Thread):
     def __init__(self, site, change, controller):
         threading.Thread.__init__(self)
@@ -87,7 +93,7 @@ class BotThread(threading.Thread):
 
     def run(self):
         self.page = pywikibot.Page(
-            self.site, self.change['title'], ns=self.change['namespace'])
+            self.site, self.change['title'], ns=self.change['ns'])
         self.output('Handling')
         if self.page.isRedirectPage():
             self.output('Redirect')
