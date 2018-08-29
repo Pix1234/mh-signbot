@@ -39,7 +39,6 @@ class Controller():
                 rc = rc_handler.get_rclist()
                 for change in rc:
                     if (
-                        (not change['bot']) and
                         (change['ns'] == 4 or change['ns'] % 2 == 1) and
                         (change['type'] in ['edit', 'new']) and
                         ('!nosign!' not in change['comment'])
@@ -71,7 +70,7 @@ class RecentChangesHandler():
 
     def upd_rclist(self):
         rclist = []
-        rcgen = self.site.recentchanges()
+        rcgen = self.site.recentchanges(bot=False)
         for rc in rcgen:
             rclist += [rc]
         if rclist[0]['timestamp'] != self.timestamp:
