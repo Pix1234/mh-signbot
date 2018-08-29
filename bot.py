@@ -24,7 +24,7 @@ from redisconfig import KEYSIGN
 
 class Controller():
     def __init__(self):
-        self.site = pywikibot.Site(user='SignBot')
+        self.site = pywikibot.Site(user='SignBotTesting')
         self.site.login()  # T153541
         self.useroptin = None
         self.useroptout = None
