@@ -32,21 +32,21 @@ class Controller():
         self.redis = Redis(host='tools-redis')
 
     def run(self):
-		rc_handler = RecentChangesHandler(self.site)
-		rc = []
-		while True:
-			if rc_handler.upd_rclist():
-				rc = rc_handler.get_rclist()
-				for change in rc:
-					if (
-						(not change['bot']) and
-						(change['ns'] == 4 or change['ns'] % 2 == 1) and
-						(change['type'] in ['edit', 'new']) and
-						('!nosign!' not in change['comment'])
-					):
-						t = BotThread(self.site, change, self)
-						t.start()
-			time.sleep(300) # run every 5 min
+        rc_handler = RecentChangesHandler(self.site)
+        rc = []
+        while True:
+            if rc_handler.upd_rclist():
+                rc = rc_handler.get_rclist()
+                for change in rc:
+                    if (
+                        (not change['bot']) and
+                        (change['ns'] == 4 or change['ns'] % 2 == 1) and
+                        (change['type'] in ['edit', 'new']) and
+                        ('!nosign!' not in change['comment'])
+                    ):
+                        t = BotThread(self.site, change, self)
+                        t.start()
+            time.sleep(300) # run every 5 min
 
         pywikibot.log('Main thread exit - THIS SHOULD NOT HAPPEN')
         time.sleep(10)
@@ -64,24 +64,24 @@ class Controller():
 
 
 class RecentChangesHandler():
-	def __init__(self, site):
-		self.site = site
-		self.rclist = []
-		self.timestamp = ''
+    def __init__(self, site):
+        self.site = site
+        self.rclist = []
+        self.timestamp = ''
 
-	def upd_rclist(self):
-		rclist = []
-		rcgen = self.site.recentchanges()
-		for rc in rcgen:
-			rclist += [rc]
-		if rclist[0]['timestamp'] != self.timestamp:
-			self.rclist = rclist
-			self.timestamp = rclist[0]['timestamp']
-			return True
-		return False
+    def upd_rclist(self):
+        rclist = []
+        rcgen = self.site.recentchanges()
+        for rc in rcgen:
+            rclist += [rc]
+        if rclist[0]['timestamp'] != self.timestamp:
+            self.rclist = rclist
+            self.timestamp = rclist[0]['timestamp']
+            return True
+        return False
 
-	def get_rclist(self):
-		return self.rclist
+    def get_rclist(self):
+        return self.rclist
 
 
 class BotThread(threading.Thread):
