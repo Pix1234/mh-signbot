@@ -94,6 +94,8 @@ class BotThread(threading.Thread):
         self.page = pywikibot.Page(
             self.site, self.change['title'], ns=self.change['ns'])
         self.output('Handling')
+        self.change['revision']['old'] = self.page.getOldVersion(self.change['old_revid'])
+        self.change['revision']['new'] = self.page.getOldVersion(self.change['revid'])
         if self.page.isRedirectPage():
             self.output('Redirect')
             return
