@@ -36,7 +36,7 @@ def on_timeout(signum, frame):
 
 class Controller():
     def __init__(self):
-        self.site = pywikibot.Site(user='SignBot')
+        self.site = pywikibot.Site(user='MirahezeBots')
         self.site.login()  # T153541
         self.useroptin = None
         self.useroptout = None
