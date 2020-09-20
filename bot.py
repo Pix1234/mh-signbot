@@ -41,7 +41,7 @@ class Controller():
         self.useroptin = None
         self.useroptout = None
         self.excluderegex = None
-        self.redis = Redis(host='tools-redis')
+        self.redis = Redis(host='localhost')
 
     def run(self):
         signal.signal(signal.SIGALRM, on_timeout)
